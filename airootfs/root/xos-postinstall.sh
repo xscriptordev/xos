@@ -194,6 +194,7 @@ arch-chroot /mnt sh -lc '
     nodejs \
     npm \
     pnpm \
+    btop \
     fastfetch \
     docker \
     docker-compose \
