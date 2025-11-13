@@ -32,7 +32,7 @@ CREDS_PATH="./user_credentials.json"
 ISO_SRC=$(findmnt -n -o SOURCE /run/archiso/bootmnt 2>/dev/null || true)
 ISO_PK=""
 [ -n "$ISO_SRC" ] && ISO_PK=$(lsblk -no PKNAME "$ISO_SRC" 2>/dev/null | head -n1)
-CANDS=$(lsblk -dn -o NAME,TYPE,RM | awk '$2=="disk" && $3=="0"{print $1}')
+CANDS=$(lsblk -dn -o NAME,TYPE,RM,RO | awk '$2=="disk" && $3=="0" && $4=="0" && $1 !~ /^sr/{print $1}')
 MIN_SIZE=${XOS_MIN_SIZE_BYTES:-34359738368}
 BEST_EMPTY=""
 BEST_EMPTY_SIZE=0
@@ -83,10 +83,27 @@ if [ -f "$CONF_PATH" ] && command -v jq >/dev/null 2>&1; then
     TMP=$(mktemp)
     jq ".disk_config.device_modifications[0].partitions[$FIDX].size = {\"sector_size\": {\"unit\": \"B\", \"value\": 512}, \"unit\": \"MiB\", \"value\": ${XOS_BOOT_SIZE_MIB}}" "$CONF_PATH" > "$TMP" && mv "$TMP" "$CONF_PATH"
   fi
+
+  if [ -n "$BIDX" ] && [ -n "$FIDX" ]; then
+    BOOT_UNIT=$(jq -r ".disk_config.device_modifications[0].partitions[$FIDX].size.unit" "$CONF_PATH")
+    BOOT_VALUE=$(jq -r ".disk_config.device_modifications[0].partitions[$FIDX].size.value" "$CONF_PATH")
+    BOOT_MIB=$BOOT_VALUE
+    case "$BOOT_UNIT" in
+      GiB|GIB|GiB) BOOT_MIB=$(( BOOT_VALUE * 1024 )) ;;
+      MiB|MIB|MiB) BOOT_MIB=$(( BOOT_VALUE )) ;;
+      B) BOOT_MIB=$(( BOOT_VALUE / 1048576 )) ;;
+      *) BOOT_MIB=$(( BOOT_VALUE )) ;;
+    esac
+    ROOT_START_MIB=$(( BOOT_MIB + 1 ))
+    TMP=$(mktemp)
+    jq ".disk_config.device_modifications[0].partitions[$BIDX].start = {\"sector_size\": {\"unit\": \"B\", \"value\": 512}, \"unit\": \"MiB\", \"value\": ${ROOT_START_MIB}}" "$CONF_PATH" > "$TMP" && mv "$TMP" "$CONF_PATH"
+  fi
 fi
 
 INSTALL_OK=0
-if [ -f "$CONF_PATH" ]; then
+RUN_CONFIG=0
+[ -f "$CONF_PATH" ] && [ -n "$TARGET" ] && RUN_CONFIG=1
+if [ "$RUN_CONFIG" = "1" ]; then
   if [ -f "$CREDS_PATH" ]; then
     if archinstall --config "$CONF_PATH" --creds "$CREDS_PATH"; then INSTALL_OK=1; fi
   else
