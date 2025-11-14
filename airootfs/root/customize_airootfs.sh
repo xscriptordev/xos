@@ -1,30 +1,36 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# No ejecutarlo durante la build de mkarchiso
 grep -q "/run/archiso/bootmnt" /proc/mounts 2>/dev/null || { return 0 2>/dev/null || exit 0; }
-
-# Permitir desactivar
-[ "${XOS_NO_AUTO:-0}" = "1" ] && { echo "[XOs] Autoinicio desactivado (XOS_NO_AUTO=1)."; return 0 2>/dev/null || exit 0; }
-
-# Solo en TTY1
+[ "${XOS_NO_AUTO:-0}" = "1" ] && { echo "[XOs] Autostart disabled (XOS_NO_AUTO=1)."; return 0 2>/dev/null || exit 0; }
 [ "$(tty)" = "/dev/tty1" ] || { return 0 2>/dev/null || exit 0; }
 
 echo
 echo "──────────────────────────────────────────"
-echo "   XOs Live – Archinstall se iniciará en 5s"
-echo "   Pulsa Ctrl+C para cancelar."
+echo "   XOs Live – Archinstall will start in 5s"
+echo "   Press Ctrl+C to cancel."
 echo "──────────────────────────────────────────"
-
 for i in 5 4 3 2 1; do
-  printf "\rIniciando archinstall en %s s… (Ctrl+C para cancelar) " "$i"
+  printf "\rStarting archinstall in %s s… (Ctrl+C to cancel) " "$i"
   sleep 1
 done
 echo
-echo "→ Lanzando archinstall (modo interactivo)…"
+echo "→ Starting archinstall (Automated with config)…"
 echo
 
-archinstall
+CONF_PATH="/root/user_configuration.json"
+CREDS_PATH="/root/user_credentials.json"
 
-# Postinstall (branding del sistema instalado)
-[ -x /root/xos-postinstall.sh ] && /root/xos-postinstall.sh || true
+INSTALL_OK=0
+echo "[XOs] Using config: $CONF_PATH"
+if [ -f "$CREDS_PATH" ]; then
+  echo "[XOs] Using creds: $CREDS_PATH"
+  if archinstall --config "$CONF_PATH" --creds "$CREDS_PATH"; then INSTALL_OK=1; fi
+else
+  echo "[XOs] Credentials file not found at $CREDS_PATH, proceeding without creds."
+  if archinstall --config "$CONF_PATH"; then INSTALL_OK=1; fi
+fi
+
+if [ "$INSTALL_OK" = "1" ] && [ -f /root/xos-postinstall.sh ]; then
+  bash /root/xos-postinstall.sh || true
+fi

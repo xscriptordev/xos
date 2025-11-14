@@ -1,0 +1,149 @@
+{
+  "archinstall-language": "English",
+  "bootloader": "Grub",
+  "hostname": "x",
+  "kernels": ["linux"],
+  "locale_config": {
+    "kb_layout": "es",
+    "sys_enc": "UTF-8",
+    "sys_lang": "en_US.UTF-8"
+  },
+  "mirror_config": {
+    "custom_servers": [],
+    "mirror_regions": {
+      "Spain": [
+        "https://ftp.rediris.es/mirror/archlinux/$repo/os/$arch",
+        "http://es.mirrors.cicku.me/archlinux/$repo/os/$arch",
+        "https://es.mirrors.cicku.me/archlinux/$repo/os/$arch",
+        "https://nox.panibrez.com/archlinux/$repo/os/$arch",
+        "http://mirror.raiaionetworks.com/archlinux/$repo/os/$arch",
+        "https://mirror.raiaionetworks.com/archlinux/$repo/os/$arch",
+        "http://mirror.es.cdn-perfprod.com/archlinux/$repo/os/$arch",
+        "https://mirror.es.cdn-perfprod.com/archlinux/$repo/os/$arch"
+      ]
+    },
+    "optional_repositories": []
+  },
+  "additional-repositories": [],
+  "network_config": {
+    "type": "nm"
+  },
+  "ntp": true,
+  "packages": [],
+  "parallel_downloads": 0,
+  "profile_config": {
+    "gfx_driver": "All open-source",
+    "greeter": "gdm",
+    "profile": {
+      "custom_settings": {
+        "GNOME": {}
+      },
+      "details": [
+        "GNOME"
+      ],
+      "main": "Desktop"
+    }
+  },
+  "script": null,
+  "services": [],
+  "swap": true,
+  "timezone": "UTC",
+  "uki": false,
+  "version": "3.0.12",
+  "disk_config": {
+    "btrfs_options": {
+      "snapshot_config": null
+    },
+    "config_type": "default_layout",
+    "device_modifications": [
+      {
+        "device": "/dev/sda",
+        "wipe": true,
+        "partitions": [
+          {
+            "btrfs": [],
+            "dev_path": null,
+            "flags": [
+              "boot"
+            ],
+            "fs_type": "fat32",
+            "size": {
+              "sector_size": {
+                "unit": "B",
+                "value": 512
+              },
+              "unit": "MiB",
+              "value": 512
+            },
+            "mount_options": [],
+            "mountpoint": "/boot",
+            "start": {
+              "sector_size": {
+                "unit": "B",
+                "value": 512
+              },
+              "unit": "MiB",
+              "value": 1
+            },
+            "status": "create",
+            "type": "primary"
+          },
+          {
+            "btrfs": [
+              {
+                "mountpoint": "/",
+                "name": "@",
+                "compress": true
+              },
+              {
+                "mountpoint": "/home",
+                "name": "@home",
+                "compress": true
+              },
+              {
+                "mountpoint": "/var/log",
+                "name": "@log",
+                "compress": true
+              },
+              {
+                "mountpoint": "/var/cache/pacman/pkg",
+                "name": "@pkg",
+                "compress": true
+              },
+              {
+                "mountpoint": "/.snapshots",
+                "name": "@.snapshots",
+                "compress": true
+              }
+            ],
+            "dev_path": null,
+            "flags": [],
+            "fs_type": "btrfs",
+            "size": {
+              "sector_size": {
+                "unit": "B",
+                "value": 512
+              },
+              "unit": "Percent",
+              "value": 100
+            },
+            "mount_options": [
+              "compress=zstd"
+            ],
+            "mountpoint": null,
+            "start": {
+              "sector_size": {
+                "unit": "B",
+                "value": 512
+              },
+              "unit": "MiB",
+              "value": 513
+            },
+            "status": "create",
+            "type": "primary"
+          }
+        ]
+      }
+    ]
+  }
+}

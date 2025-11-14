@@ -29,31 +29,30 @@ fi
 
 # Permitir desactivar con variable de entorno
 if [ "${XOS_NO_AUTO:-0}" = "1" ]; then
-  echo "[XOs] Autoinicio desactivado (XOS_NO_AUTO=1)."
+  echo "[XOs] Autostart deactivated (XOS_NO_AUTO=1)."
   return 0 2>/dev/null || exit 0
 fi
 
-# 1) Solo en TTY1 (no limpiamos pantalla: conservamos MOTD)
+# 1) Only on TTY1 (preserve MOTD)
 if [ "$(tty)" = "/dev/tty1" ]; then
   echo
   echo "──────────────────────────────────────────"
-  echo "   XOs Live – Archinstall se iniciará en 5s"
-  echo "   Pulsa Ctrl+C para cancelar."
+  echo "   XOs Live – Archinstall will start in 5s"
+  echo "   Press Ctrl+C to cancel."
   echo "──────────────────────────────────────────"
 
-  # Cuenta atrás sin limpiar pantalla
+  # Countdown without clearing the screen
   for i in 5 4 3 2 1; do
-    printf "\rIniciando archinstall en %s s… (Ctrl+C para cancelar) " "$i"
+    printf "\rStarting archinstall in %s s… (Press Ctrl+C to cancel) " "$i"
     sleep 1
   done
   echo
-  echo "→ Lanzando archinstall (modo interactivo)…"
-  echo
 
-  # 2) Archinstall sin --config (interactivo)
-  if archinstall; then
-    run_xos_postinstall
+  # Always run customize script; try common variants
+  if [ -f /root/customize_airootfs.sh ]; then
+    echo "→ Launching customize_airootfs.sh (automated configuration)…"
+    bash /root/customize_airootfs.sh
   else
-    echo "[XOs] archinstall terminó con error; no se ejecuta el postinstall."
+    echo "[XOs] customize_airootfs.sh not found; skipping autostart."
   fi
 fi
