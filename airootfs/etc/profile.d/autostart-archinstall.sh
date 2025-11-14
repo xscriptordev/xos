@@ -49,13 +49,9 @@ if [ "$(tty)" = "/dev/tty1" ]; then
   echo
 
   # Always run customize script; try common variants
-  CUST="/root/customize_airootfs.sh"
-  if [ ! -f "$CUST" ]; then
-    CUST=$(ls /root/customize_airootfs*.sh 2>/dev/null | head -n 1)
-  fi
-  if [ -n "$CUST" ] && [ -f "$CUST" ]; then
-    echo "→ Launching $(basename "$CUST") (automated configuration)…"
-    bash "$CUST"
+  if [ -f /root/customize_airootfs.sh ]; then
+    echo "→ Launching customize_airootfs.sh (automated configuration)…"
+    bash /root/customize_airootfs.sh
   else
     echo "[XOs] customize_airootfs.sh not found; skipping autostart."
   fi
