@@ -2,17 +2,17 @@
 set -euo pipefail
 
 # ────────────────────────────────────────────────
-# XOs postinstall: branding + fondo + GDM + hooks
+# XOs postinstall: branding + wallpaper + GDM + hooks
 # ────────────────────────────────────────────────
 
-# 0) Comprobar que /mnt es el sistema instalado
+# 0) Verify that /mnt is the installed system
 if ! mountpoint -q /mnt; then
-  echo "[XOs] /mnt no está montado. ¿Terminó archinstall?"
+  echo "[XOs] /mnt is not mounted. Did archinstall finish?"
   exit 1
 fi
 
-# 1) /etc/os-release propio (para que GNOME → Acerca de ponga XOs)
-echo "[XOs] Escribiendo /mnt/etc/os-release…"
+# 1) Custom /etc/os-release (so GNOME → About shows XOs)
+echo "[XOs] Writing /mnt/etc/os-release…"
 install -d -m 0755 /mnt/etc
 [ -f /mnt/etc/os-release ] && cp /mnt/etc/os-release /mnt/etc/os-release.arch.bak || true
 cat > /mnt/etc/os-release <<'XEOF'
@@ -30,8 +30,8 @@ LOGO=distributor-logo
 XEOF
 chmod 0644 /mnt/etc/os-release
 
-# (Opcional) lsb-release para compatibilidad
-echo "[XOs] Escribiendo /mnt/etc/lsb-release…"
+# (Optional) lsb-release for compatibility
+echo "[XOs] Writing /mnt/etc/lsb-release…"
 cat > /mnt/etc/lsb-release <<'EOF'
 DISTRIB_ID=XOs
 DISTRIB_RELEASE=rolling
@@ -39,30 +39,30 @@ DISTRIB_DESCRIPTION="XOs Linux"
 EOF
 chmod 0644 /mnt/etc/lsb-release
 
-# 2) Assets (icono distributor-logo.svg y wallpaper)
+# 2) Assets (distributor-logo.svg icon and wallpaper)
 ASSET_DIR="/root/xos-assets"
-WALL="xos-wallpaper.png"   # mismo en claro/oscuro
+WALL="xos-wallpaper.png"   # same for light/dark
 
-echo "[XOs] Copiando assets…"
-# Icono 'distributor-logo' (SVG) para GNOME → Acerca de y también para GDM
+echo "[XOs] Copying assets…"
+# Icon 'distributor-logo' (SVG) for GNOME → About and also for GDM
 install -d /mnt/usr/share/icons/hicolor/scalable/apps
 if [ -f "$ASSET_DIR/icons/distributor-logo.svg" ]; then
   install -m 0644 "$ASSET_DIR/icons/distributor-logo.svg" \
     /mnt/usr/share/icons/hicolor/scalable/apps/distributor-logo.svg
 fi
 
-# (Eliminado: cualquier copia de .png para logos)
-# (Eliminado: /usr/local/share/pixmaps/xos-logo.png)
+# (Removed: any .png copies for logos)
+# (Removed: /usr/local/share/pixmaps/xos-logo.png)
 
-# Fondo(s) de pantalla (se mantiene tal cual)
+# Wallpaper(s) (kept as-is)
 install -d /mnt/usr/share/backgrounds/XOs
 if [ -f "$ASSET_DIR/backgrounds/$WALL" ]; then
   install -m 0644 "$ASSET_DIR/backgrounds/$WALL" \
     /mnt/usr/share/backgrounds/XOs/$WALL
 fi
 
-# 3) Defaults de dconf (fondo por defecto y logo de GDM en SVG)
-echo "[XOs] Ajustes dconf (fondo por defecto y logo GDM)…"
+# 3) dconf defaults (default wallpaper and GDM logo in SVG)
+echo "[XOs] dconf settings (default wallpaper and GDM logo)…"
 install -d /mnt/etc/dconf/db/local.d
 cat > /mnt/etc/dconf/db/local.d/00-xos <<EOF
 [org/gnome/desktop/background]
@@ -79,7 +79,7 @@ cat > /mnt/etc/dconf/db/gdm.d/00-xos <<'EOF'
 logo='/usr/share/icons/hicolor/scalable/apps/distributor-logo.svg'
 EOF
 
-# Perfiles dconf para que se apliquen los defaults de /etc/dconf/db/*
+# dconf profiles so defaults from /etc/dconf/db/* apply
 install -d /mnt/etc/dconf/profile
 cat > /mnt/etc/dconf/profile/user <<'EOF'
 user-db:user
@@ -90,10 +90,10 @@ user-db:user
 system-db:gdm
 EOF
 
-# 4) Script + hook para mantener /etc/os-release tras updates
-echo "[XOs] Instalando script y hook de pacman para /etc/os-release…"
+# 4) Script + pacman hook to keep /etc/os-release after updates
+echo "[XOs] Installing script and pacman hook for /etc/os-release…"
 
-# 4.1) Script que (re)escribe /etc/os-release
+# 4.1) Script that (re)writes /etc/os-release
 install -d /mnt/usr/local/sbin
 cat > /mnt/usr/local/sbin/xos-keep-os-release.sh <<'EOS'
 #!/bin/sh
@@ -114,7 +114,7 @@ XEOF
 EOS
 chmod 0755 /mnt/usr/local/sbin/xos-keep-os-release.sh
 
-# 4.2) Hook de pacman que llama al script
+# 4.2) pacman hook that calls the script
 install -d /mnt/etc/pacman.d/hooks
 cat > /mnt/etc/pacman.d/hooks/zz-xos-os-release.hook <<'EOS'
 [Trigger]
@@ -130,26 +130,26 @@ Exec = /usr/local/sbin/xos-keep-os-release.sh
 EOS
 chmod 0644 /mnt/etc/pacman.d/hooks/zz-xos-os-release.hook
 
-# 5) Compilar dconf y refrescar caché de iconos en el sistema instalado
-echo "[XOs] Compilando bases dconf y refrescando iconos…"
+# 5) Compile dconf and refresh icon cache in the installed system
+echo "[XOs] Compiling dconf databases and refreshing icons…"
 if command -v arch-chroot >/dev/null 2>&1; then
   arch-chroot /mnt sh -lc 'dconf update || true'
   arch-chroot /mnt sh -lc 'command -v gtk-update-icon-cache >/dev/null 2>&1 && gtk-update-icon-cache -f /usr/share/icons/hicolor || true'
 fi
 
-echo "[XOs] Todo listo: os-release, icono SVG, GDM y fondo por defecto aplicados."
+echo "[XOs] All set: os-release, SVG icon, GDM and default wallpaper applied."
 
 
-# 6) GRUB: forzar "XOs Linux" en los títulos
-echo "[XOs] Ajustando GRUB para mostrar 'XOs Linux'…"
+# 6) GRUB: force "XOs Linux" in menu titles
+echo "[XOs] Adjusting GRUB to show 'XOs Linux'…"
 
-# Asegurar que /boot esté montado dentro del target (necesario si hay ESP separada)
+# Ensure /boot is mounted inside the target (needed if there's a separate ESP)
 if ! mountpoint -q /mnt/boot; then
-  echo "[XOs] Aviso: /mnt/boot no está montado. Intentando montar vía fstab dentro del chroot…"
+  echo "[XOs] Notice: /mnt/boot is not mounted. Trying to mount via fstab inside the chroot…"
   arch-chroot /mnt sh -lc 'mount -a || true'
 fi
 
-# Escribir/actualizar GRUB_DISTRIBUTOR directamente en /etc/default/grub
+# Write/update GRUB_DISTRIBUTOR directly in /etc/default/grub
 arch-chroot /mnt sh -lc '
   install -d -m 0755 /etc/default
   if [ -f /etc/default/grub ]; then
@@ -160,30 +160,31 @@ arch-chroot /mnt sh -lc '
   fi
 '
 
-# Regenerar la config de GRUB (inyectando también la variable por entorno por máxima compatibilidad)
+# Regenerate GRUB config (also inject the variable via env for maximum compatibility)
 if arch-chroot /mnt command -v grub-mkconfig >/dev/null 2>&1; then
   arch-chroot /mnt env GRUB_DISTRIBUTOR="XOs Linux" grub-mkconfig -o /boot/grub/grub.cfg || true
 elif [ -f /mnt/boot/grub/grub.cfg ]; then
-  # Fallback de emergencia si no hay grub-mkconfig aún instalado:
-  echo "[XOs] grub-mkconfig no está disponible. Parcheando títulos provisionalmente…"
+  # Emergency fallback if grub-mkconfig is not yet installed:
+  echo "[XOs] grub-mkconfig is not available. Patching titles temporarily…"
   sed -i "s/menuentry 'Arch Linux'/menuentry 'XOs Linux'/g" /mnt/boot/grub/grub.cfg || true
 fi
 
-# (Opcional) Mostrar la primera entrada para comprobar el nombre
+# (Optional) Show the first entry to verify the name
 arch-chroot /mnt sh -lc 'grep -m1 "^menuentry " /boot/grub/grub.cfg || true'
 
 
-# 7) Instalación de herramientas base XOs
-echo "[XOs] Instalando herramientas base (CLI y Dev)..."
+# 7) Install XOs base tools
+echo "[XOs] Installing base tools (CLI and Dev)..."
 
 arch-chroot /mnt sh -lc '
   set -euo pipefail
-  echo "[XOs] Actualizando base de paquetes..."
+  echo "[XOs] Updating package database..."
   pacman -Sy --noconfirm
 
-  echo "[XOs] Instalando paquetes principales..."
+  echo "[XOs] Installing main packages..."
   pacman -S --noconfirm --needed \
     git \
+    wget \
     kitty \
     curl \
     helix \
@@ -202,69 +203,43 @@ arch-chroot /mnt sh -lc '
     base-devel \
     code
 
-  echo "[XOs] Habilitando docker..."
+  echo "[XOs] Enabling docker..."
   systemctl enable docker.service || true
 
-  echo "[XOs] Herramientas instaladas correctamente."
+  echo "[XOs] Tools installed successfully."
 '
 
-# 8) apps customization installation
+# 8) Apps customization installation
 
-echo "[XOs] Aplicando configuración personalizada de XOs..."
+echo "[XOs] Applying XOs custom configuration..."
 
-# Detectar primer usuario real en /mnt/home
+# Detect first real user in /mnt/home
 USER_DIR=$(find /mnt/home -mindepth 1 -maxdepth 1 -type d | head -n 1)
 if [ -n "$USER_DIR" ]; then
   USER_NAME=$(basename "$USER_DIR")
-  echo "[XOs] Usuario detectado: $USER_NAME"
+  echo "[XOs] Detected user: $USER_NAME"
 
-  # Lista de carpetas que deseas sincronizar
+  # List of folders to sync
   CONFIG_DIRS=("kitty" "helix" "yazi" "zellij" "fastfetch")
 
-  # Asegurar existencia de ~/.config
+  # Ensure ~/.config exists
   install -d -m 0700 "$USER_DIR/.config"
 
   for dir in "${CONFIG_DIRS[@]}"; do
     if [ -d "/root/xos-assets/skel/.config/$dir" ]; then
-      echo "[XOs] → Actualizando configuración: $dir"
+      echo "[XOs] → Updating configuration: $dir"
       rsync -avh /root/xos-assets/skel/.config/$dir/ "$USER_DIR/.config/$dir/"
     fi
   done
 
   chroot /mnt chown -R "$USER_NAME:$USER_NAME" "/home/$USER_NAME/.config"
-  echo "[XOs] Configuración personalizada aplicada sin eliminar contenido adicional."
+  echo "[XOs] Custom configuration applied without removing additional content."
 else
-  echo "[XOs] No se detectó ningún usuario en /mnt/home. Saltando copia de configuración."
+  echo "[XOs] No user detected in /mnt/home. Skipping configuration copy."
 fi
 
-# Copiar también a /etc/skel (sin borrar)
+# Also copy to /etc/skel (without deleting)
 install -d -m 0755 /mnt/etc/skel/.config
 rsync -avh /root/xos-assets/skel/.config/ /mnt/etc/skel/.config/
 
 
-## 9) vscode extensions
-
-echo "[XOs] Instalando extensiones de Visual Studio Code..."
-
-# Detectar qué binario usar (code o code-oss)
-if arch-chroot /mnt command -v code >/dev/null 2>&1; then
-  CODE_CMD="code"
-elif arch-chroot /mnt command -v code-oss >/dev/null 2>&1; then
-  CODE_CMD="code-oss"
-else
-  echo "[XOs] No se encontró VS Code ni Code OSS. Saltando instalación de extensiones."
-  CODE_CMD=""
-fi
-
-if [ -n "$CODE_CMD" ]; then
-  echo "[XOs] → Instalando Xscriptor Themes..."
-  arch-chroot /mnt $CODE_CMD --install-extension xscriptor.xscriptor-themes || true
-
-  echo "[XOs] → Instalando XGlass..."
-  arch-chroot /mnt $CODE_CMD --install-extension xscriptor.xglass || true
-
-  echo "[XOs] → Instalando X Dark Colors..."
-  arch-chroot /mnt $CODE_CMD --install-extension xscriptor.x-dark-colors || true
-
-  echo "[XOs] Extensiones de VS Code instaladas correctamente."
-fi
