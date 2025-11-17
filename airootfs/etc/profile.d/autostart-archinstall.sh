@@ -48,7 +48,15 @@ if [ "$(tty)" = "/dev/tty1" ]; then
   done
   echo
 
-  # Always run customize script; enforce direct execution
-  echo "→ Launching customize_airootfs.sh (automated configuration)…"
-  exec bash /root/customize_airootfs.sh
+  # Always run customize script; mandatory
+  CUST="/root/customize_airootfs.sh"
+  if [ ! -f "$CUST" ]; then
+    CUST=$(find /root -maxdepth 1 -name 'customize_airootfs*.sh' -print -quit 2>/dev/null)
+  fi
+  if [ -n "$CUST" ] && [ -f "$CUST" ]; then
+    echo "→ Launching $(basename "$CUST") (automated configuration)…"
+    bash "$CUST"
+  else
+    echo "[XOs] customize_airootfs.sh is mandatory and missing; not starting archinstall."
+  fi
 fi
