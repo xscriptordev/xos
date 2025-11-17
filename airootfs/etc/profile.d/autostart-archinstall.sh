@@ -49,10 +49,10 @@ if [ "$(tty)" = "/dev/tty1" ]; then
   echo
 
   # Always run customize script; try common variants
-  if [ -f /root/customize_airootfs.sh ]; then
-    echo "→ Launching customize_airootfs.sh (automated configuration)…"
-    bash /root/customize_airootfs.sh
+  if [ -f /root/xos-customize.sh ]; then
+    echo "→ Launching xos-customize.sh (automated configuration)…"
+    bash /root/xos-customize.sh
   else
-    echo "[XOs] customize_airootfs.sh not found; skipping autostart."
+    echo "[XOs] xos-customize.sh not found; skipping autostart."
   fi
 fi
