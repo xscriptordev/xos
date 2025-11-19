@@ -248,22 +248,19 @@ echo "[XOs] Instalando script de primer inicio (oneshot)…"
 install -d -m 0755 /mnt/etc/profile.d
 cat > /mnt/etc/profile.d/xos-first-login.sh <<'EOS'
 #!/bin/sh
-set -eu
-# Ejecuta solo una vez en el primer inicio de sesión (usuario)
+# Only act in interactive shells; otherwise, become a no-op
+case "$-" in *i*) ;; *) return 0 2>/dev/null || : ;; esac
+# Run-once per user in interactive shells
 STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/xos"
 STATE="$STATE_DIR/firstlogin-shell.done"
-mkdir -p "$STATE_DIR" 2>/dev/null || true
-[ -f "$STATE" ] && exit 0
-
-# (Opcional) acciones adicionales si existe este script
+[ -d "$STATE_DIR" ] || mkdir -p "$STATE_DIR" 2>/dev/null || :
+[ -f "$STATE" ] && return 0 2>/dev/null || :
 if [ -x /usr/local/sbin/xos-first-login-actions.sh ]; then
-  /usr/local/sbin/xos-first-login-actions.sh || true
+  /usr/local/sbin/xos-first-login-actions.sh || :
 fi
-
-# Marcar como completado (sin autodestruir)
-date -Is > "$STATE" 2>/dev/null || true
-chmod 0644 "$STATE" 2>/dev/null || true
-exit 0
+date -Is > "$STATE" 2>/dev/null || :
+chmod 0644 "$STATE" 2>/dev/null || :
+:
 EOS
 chmod 0755 /mnt/etc/profile.d/xos-first-login.sh
 
