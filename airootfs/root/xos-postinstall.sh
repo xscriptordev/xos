@@ -201,6 +201,7 @@ arch-chroot /mnt sh -lc '
     docker \
     docker-compose \
     base-devel \
+    obsidian \
     code
 
   echo "[XOs] Enabling docker..."
