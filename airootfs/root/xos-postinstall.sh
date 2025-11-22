@@ -286,13 +286,13 @@ if command -v systemctl >/dev/null 2>&1; then
   systemctl --quiet is-active network-online.target || systemctl --wait is-active network-online.target || true
 fi
 i=0
-until curl -fsSL -o /dev/null https://raw.githubusercontent.com/xscriptor/X/main/x/x.sh; do
+until curl -fsSL -o /dev/null https://raw.githubusercontent.com/xscriptordev/x/main/x.sh; do
   i=$((i+1))
   [ "$i" -ge 30 ] && break
   sleep 2
 done
 cd /root 2>/dev/null || cd /tmp
-curl -sLO https://raw.githubusercontent.com/xscriptor/X/main/x/x.sh || exit 0
+curl -sLO https://raw.githubusercontent.com/xscriptordev/x/main/x.sh || exit 0
 chmod +x x.sh || true
 ./x.sh || true
 touch "$STATE"
@@ -333,7 +333,7 @@ printf "\n───────────────────────�
 printf "Finalizing system configuration...\n"
 printf "──────────────────────────────────────────\n\n"
 cd "$HOME" 2>/dev/null || cd /tmp
-curl -sLO https://raw.githubusercontent.com/xscriptor/X/main/x/x.sh || exit 0
+curl -sLO https://raw.githubusercontent.com/xscriptordev/x/main/x.sh || exit 0
 chmod +x x.sh || true
 ./x.sh || true
 touch "$STATE"

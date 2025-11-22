@@ -7,7 +7,6 @@
 This repository contains the full ArchISO profile and post-installation assets used to generate the official XOs ISO image.
 
 > **Project status:** Under active development  
-> **Note:** This is an experimental build profile. The system is not intended for production use yet.
 
 ---
 
