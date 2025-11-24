@@ -9,7 +9,7 @@ iso_version="$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y.%m.%d)"
 install_dir="arch"
 buildmodes=('iso')
 bootmodes=('bios.syslinux'
-           'uefi.systemd-boot')
+           'uefi.grub')
 packages_file="packages.x86_64"
 arch="x86_64"
 pacman_conf="pacman.conf"
@@ -21,7 +21,7 @@ file_permissions=(
   ["/root"]="0:0:750"
   ["/root/.automated_script.sh"]="0:0:755"
   ["/root/customize_airootfs.sh"]="0:0:755"
-  ["/root/xos-customize.sh"]="0:0:755"
+  ["/root/xos-autostart.sh"]="0:0:755"
   ["/root/xos-postinstall.sh"]="0:0:755"
   ["/root/.gnupg"]="0:0:700"
   ["/usr/local/bin/choose-mirror"]="0:0:755"

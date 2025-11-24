@@ -3,7 +3,7 @@ set -euo pipefail
 
 grep -q "/run/archiso/bootmnt" /proc/mounts 2>/dev/null || { return 0 2>/dev/null || exit 0; }
 [ "${XOS_NO_AUTO:-0}" = "1" ] && { echo "[XOs] Autostart disabled (XOS_NO_AUTO=1)."; return 0 2>/dev/null || exit 0; }
-[ "$(tty)" = "/dev/tty1" ] || { return 0 2>/dev/null || exit 0; }
+[ "$(tty)" = "/dev/tty1" ] || { :; }
 
 echo
 echo "──────────────────────────────────────────"

@@ -160,13 +160,31 @@ arch-chroot /mnt sh -lc '
   fi
 '
 
+echo "[XOs] Applying XOs Natural boot mode (verbose)…"
+arch-chroot /mnt sh -lc '
+  set -eu
+  GRUB_FILE="/etc/default/grub"
+  [ -f "$GRUB_FILE" ] || touch "$GRUB_FILE"
+  sed -i "/^GRUB_CMDLINE_LINUX_DEFAULT=/d" "$GRUB_FILE"
+  printf "GRUB_CMDLINE_LINUX_DEFAULT=\"loglevel=7 systemd.show_status=1 rd.udev.log_priority=debug\"\n" >> "$GRUB_FILE"
+'
+
 # Regenerate GRUB config (also inject the variable via env for maximum compatibility)
 if arch-chroot /mnt command -v grub-mkconfig >/dev/null 2>&1; then
   arch-chroot /mnt env GRUB_DISTRIBUTOR="XOs Linux" grub-mkconfig -o /boot/grub/grub.cfg || true
+  echo "[XOs] Renaming GRUB advanced submenu to 'Advanced options for XOs'…"
+  arch-chroot /mnt sh -lc '
+    if [ -f /boot/grub/grub.cfg ]; then
+      sed -i "s/Advanced options for Arch Linux/Advanced options for XOs/g" /boot/grub/grub.cfg || true
+      sed -i "s/Advanced options for XOs Linux/Advanced options for XOs/g" /boot/grub/grub.cfg || true
+    fi
+  '
 elif [ -f /mnt/boot/grub/grub.cfg ]; then
   # Emergency fallback if grub-mkconfig is not yet installed:
   echo "[XOs] grub-mkconfig is not available. Patching titles temporarily…"
   sed -i "s/menuentry 'Arch Linux'/menuentry 'XOs Linux'/g" /mnt/boot/grub/grub.cfg || true
+  echo "[XOs] Patching advanced submenu label…"
+  sed -i "s/Advanced options for Arch Linux/Advanced options for XOs/g" /mnt/boot/grub/grub.cfg || true
 fi
 
 # (Optional) Show the first entry to verify the name
