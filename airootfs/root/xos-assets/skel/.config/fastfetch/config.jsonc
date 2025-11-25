@@ -14,8 +14,8 @@
   "display": {
     "separator": " ▸ ",
     "color": {
-      "keys": "yellow",         // color por defecto de las keys
-      "output": "white",        // color por defecto de la salida
+      "keys": "yellow",         
+      "output": "white",        
       "separator": "bright_green",
       "title": "cyan"
     }
@@ -31,7 +31,7 @@
     {
       "type": "custom",
       "format": "\u001b[90m┌────────────────────────────────────────────────────────────┐"
-      // ya estás forzando color gris (90m) manualmente aquí, esto está bien
+      
     },
 
     {

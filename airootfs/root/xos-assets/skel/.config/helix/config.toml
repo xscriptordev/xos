@@ -1,25 +1,25 @@
-# --- Selección de tema ---
+# --- Theme selection ---
 theme = "xscriptor_candypop"
 
-# --- Ajustes generales del editor ---
+# --- General editor settings ---
 [editor]
 line-number = "relative"     # "absolute" | "relative" | "none"
 cursorline = true
-color-modes = true           # muestra el modo con colores (NORMAL/INSERT/SELECT)
-true-color = true            # usa 24-bit si tu terminal lo soporta
+color-modes = true           # colorized mode indicator (NORMAL/INSERT/SELECT)
+true-color = true            # enable 24-bit colors if terminal supports it
 mouse = true
 auto-pairs = true
-idle-timeout = 400           # ms para eventos de “idle” (lint/autocomplete, etc.)
+idle-timeout = 400           # milliseconds for idle events (lint/autocomplete)
 bufferline = "always"
 completion-trigger-len = 1
 
-# --- Forma del cursor por modo ---
+# --- Cursor shape per mode ---
 [editor.cursor-shape]
 normal = "block"
 insert = "bar"
 select = "underline"
 
-# --- Statusline (qué se ve y dónde) ---
+# --- Statusline (what is shown and where) ---
 [editor.statusline]
 left   = ["mode", "spinner", "file-name"]
 center = ["diagnostics"]
@@ -29,13 +29,13 @@ mode.normal = "NORMAL"
 mode.insert = "INSERT"
 mode.select = "SELECT"
 
-# --- Guías de indentación ---
+# --- Indentation guides ---
 [editor.indent-guides]
 render = true
 character = "│"
 skip-levels = 1
 
-# --- Visualización de espacios/tabulaciones ---
+# --- Whitespace rendering (spaces/tabs/newlines) ---
 [editor.whitespace.render]
 space = "all"        # "none" | "all" | "boundary"
 tab = "all"
@@ -48,7 +48,7 @@ tab = "→"
 newline = "⏎"
 tabpad = "·"
 
-# --- Ajuste de línea suave (soft-wrap) ---
+# --- Soft-wrap configuration ---
 [editor.soft-wrap]
 enable = true
 wrap-at-text-width = false
@@ -61,10 +61,9 @@ hidden = false
 git-ignore = true
 
 
-# --- LSP (comportamiento general) ---
+# --- LSP (general behaviour) ---
 [editor.lsp]
 display-messages = true
 auto-signature-help = true
 snippets = true
-
 
